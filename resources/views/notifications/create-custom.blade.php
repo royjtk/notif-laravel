@@ -7,10 +7,14 @@
             <div class="card">
                 <div class="card-header">{{ __('Kirim Notifikasi ke Email Custom') }}</div>
 
-                <div class="card-body">
-                    @if (session('success'))
+                <div class="card-body">                    @if (session('success'))
                         <div class="alert alert-success" role="alert">
                             {{ session('success') }}
+                        </div>
+                    @endif
+                    @if (session('warning'))
+                        <div class="alert alert-warning" role="alert">
+                            {{ session('warning') }}
                         </div>
                     @endif
 
