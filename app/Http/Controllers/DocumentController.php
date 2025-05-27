@@ -75,7 +75,7 @@ class DocumentController extends Controller
             'user_id' => Auth::id(),
             'document_id' => $document->id,
             'action' => 'preview',
-            'description' => 'User melihat preview dokumen ' . $document->original_name,
+            'description' => Auth::user()->name . ' melihat preview dokumen ' . $document->original_name,
         ]);
 
         // Notifikasi

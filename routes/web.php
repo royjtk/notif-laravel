@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\UserNotificationController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 
@@ -31,4 +32,8 @@ Route::middleware(['auth'])->group(function () {
     // Notification Settings Routes
     Route::get('/notifications/settings', [UserNotificationController::class, 'edit'])->name('user.notifications.edit');
     Route::patch('/notifications/settings', [UserNotificationController::class, 'update'])->name('users.update-notifications');
+    
+    // Custom Notification Routes
+    Route::get('/notifications/create', [NotificationController::class, 'create'])->name('notifications.create');
+    Route::post('/notifications/send', [NotificationController::class, 'send'])->name('notifications.send');
 });

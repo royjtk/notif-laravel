@@ -41,6 +41,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('audit-logs.index') }}">Audit Logs</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('notifications.create') }}">Kirim Notifikasi</a>
+                            </li>
                         @endauth
                     </ul>
 
