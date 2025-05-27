@@ -41,8 +41,23 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('audit-logs.index') }}">Audit Logs</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('notifications.create') }}">Kirim Notifikasi</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="notifMenu" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    Kirim Notifikasi
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="notifMenu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('notifications.create') }}">
+                                            Ke Pengguna Terdaftar
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('notifications.create-custom') }}">
+                                            Ke Email Custom
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         @endauth
                     </ul>

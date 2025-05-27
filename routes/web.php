@@ -36,4 +36,6 @@ Route::middleware(['auth'])->group(function () {
     // Custom Notification Routes
     Route::get('/notifications/create', [NotificationController::class, 'create'])->name('notifications.create');
     Route::post('/notifications/send', [NotificationController::class, 'send'])->name('notifications.send');
+    Route::get('/notifications/custom', [NotificationController::class, 'createCustom'])->name('notifications.create-custom');
+    Route::post('/notifications/send-custom', [NotificationController::class, 'sendCustom'])->name('notifications.send-custom');
 });
