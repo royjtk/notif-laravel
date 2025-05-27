@@ -59,3 +59,134 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+# Upload Documents System
+
+## Models
+
+### Core Models
+1. **User**
+   - Handles user authentication and profile
+   - Fillable: name, email, password
+   - Has notifications and documents relationship
+
+2. **Document**
+   - Manages uploaded documents
+   - Stores document metadata and file locations
+   - Has audit logs relationship
+
+3. **AuditLog**
+   - Tracks all activities on documents
+   - Records user actions and timestamps
+   - Belongs to users and documents
+
+### Notification Models
+1. **DatabaseNotification**
+   - Handles database notifications
+   - Extends Laravel's base notification
+   - Polymorphic relationship with notifiable entities
+
+### Queue Related Models
+1. **Job**
+   - Represents queued jobs
+   - Manages job payload and attempts
+   - No timestamps
+
+2. **JobBatch**
+   - Handles batch job processing
+   - Tracks job completion and failures
+   - Custom timestamp handling
+
+3. **FailedJob**
+   - Stores failed job information
+   - Includes detailed error information
+   - Helps in debugging and retry
+
+### Authentication Related Models
+1. **PasswordResetToken**
+   - Manages password reset functionality
+   - Email as primary key
+   - No auto-incrementing
+
+2. **Session**
+   - Handles user sessions
+   - Stores session data and activity
+   - Belongs to User model
+
+## Database Schema
+
+### users
+- id (bigint, auto-increment)
+- name (string)
+- email (string, unique)
+- password (string, hashed)
+- remember_token (string, nullable)
+- created_at, updated_at (timestamps)
+
+### documents
+- id (bigint, auto-increment)
+- filename (string)
+- original_name (string)
+- mime_type (string)
+- size (bigint)
+- created_at, updated_at (timestamps)
+
+### audit_logs
+- id (bigint, auto-increment)
+- user_id (bigint, foreign key)
+- document_id (bigint, foreign key)
+- action (string)
+- description (text)
+- created_at, updated_at (timestamps)
+
+### notifications
+- id (uuid)
+- type (string)
+- notifiable_type (string)
+- notifiable_id (bigint)
+- data (text, json)
+- read_at (timestamp, nullable)
+- created_at, updated_at (timestamps)
+
+### jobs
+- id (bigint, auto-increment)
+- queue (string)
+- payload (longtext)
+- attempts (tinyint)
+- reserved_at (int, nullable)
+- available_at (int)
+- created_at (int)
+
+### job_batches
+- id (string, primary)
+- name (string)
+- total_jobs (int)
+- pending_jobs (int)
+- failed_jobs (int)
+- failed_job_ids (longtext)
+- options (mediumtext, nullable)
+- cancelled_at (int, nullable)
+- created_at (int)
+- finished_at (int, nullable)
+
+### failed_jobs
+- id (bigint, auto-increment)
+- uuid (string, unique)
+- connection (text)
+- queue (text)
+- payload (longtext)
+- exception (longtext)
+- failed_at (timestamp)
+
+### password_reset_tokens
+- email (string, primary)
+- token (string)
+- created_at (timestamp)
+
+### sessions
+- id (string, primary)
+- user_id (bigint, nullable)
+- ip_address (string, nullable)
+- user_agent (text, nullable)
+- payload (text)
+- last_activity (int)
