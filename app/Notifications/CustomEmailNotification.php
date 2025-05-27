@@ -6,8 +6,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CustomEmailNotification extends Notification
+class CustomEmailNotification extends Notification implements ShouldQueue
 {
 
     public $tries = 3;  // Jumlah percobaan jika gagal

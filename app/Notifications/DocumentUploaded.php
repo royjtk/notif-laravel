@@ -6,8 +6,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Models\Document;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class DocumentUploaded extends Notification
+class DocumentUploaded extends Notification implements ShouldQueue
 {
     use Queueable;
 
