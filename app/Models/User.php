@@ -20,10 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
-        'notify_on_document_upload',
-        'notify_on_document_update', 
-        'notify_on_document_delete'
+        'password'
     ];
 
     /**

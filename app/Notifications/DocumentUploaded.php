@@ -21,13 +21,7 @@ class DocumentUploaded extends Notification implements ShouldQueue
 
     public function via($notifiable)
     {
-        $channels = ['database'];  // Always send to database for in-app notifications
-        
-        if ($notifiable->notify_on_document_upload) {
-            $channels[] = 'mail';
-        }
-        
-        return $channels;
+        return ['database', 'mail'];  // Selalu kirim ke database dan email
     }
 
     public function toMail($notifiable)

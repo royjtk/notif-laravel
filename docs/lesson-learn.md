@@ -234,10 +234,52 @@
    - Regular cleanup untuk old jobs
    - Batasi akses ke queue management
 
-### Tips Maintenance Queue
+## Penyederhanaan Sistem Notifikasi
 
-1. Backup failed jobs table secara regular
-2. Monitor memory usage queue worker
-3. Set timeout yang sesuai untuk setiap jenis job
-4. Implement rate limiting jika diperlukan
-5. Regular cleanup untuk completed jobs
+### Perubahan yang Dilakukan
+
+1. **Penghapusan Preferensi Notifikasi**
+   - Menghapus kolom preferensi dari tabel users:
+     - notify_on_document_upload
+     - notify_on_document_update
+     - notify_on_document_delete
+   - Semua user sekarang otomatis menerima notifikasi
+
+2. **Penyederhanaan Kode**
+   - Menghapus atribut preferensi dari model User
+   - Mengubah logika pengiriman di DocumentUploaded notification
+   - Menghapus pengecekan preferensi user
+
+### Alasan Perubahan
+
+1. **Simplifikasi**
+   - Mengurangi kompleksitas sistem
+   - Menghilangkan kebutuhan manajemen preferensi
+   - User flow lebih straightforward
+
+2. **Maintenance**
+   - Kode lebih mudah dipelihara
+   - Mengurangi kemungkinan bug
+   - Testing lebih sederhana
+
+3. **User Experience**
+   - Tidak ada kebingungan tentang pengaturan notifikasi
+   - Semua user mendapat informasi penting
+   - Konsistensi dalam penerimaan notifikasi
+
+### Dampak Perubahan
+
+1. **Teknis**
+   - Database schema lebih sederhana
+   - Query lebih efisien
+   - Mengurangi jumlah kondisional dalam kode
+
+2. **Bisnis**
+   - Memastikan semua user mendapat informasi penting
+   - Mengurangi support ticket terkait notifikasi
+   - Komunikasi lebih konsisten
+
+3. **Pengembangan**
+   - Lebih mudah menambah fitur baru
+   - Lebih mudah melakukan debugging
+   - Dokumentasi lebih straightforward
