@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Upload Dokumen</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-</head>
-<body>
+@extends('layouts.app')
+
+@section('title', 'Upload Dokumen Baru')
+
+@section('content')
 <div class="container mt-5">
     <h2 class="mb-4">Upload Dokumen Baru</h2>
 
@@ -30,6 +26,4 @@
         <a href="{{ route('documents.index') }}" class="btn btn-secondary ms-2">Kembali ke Daftar</a>
     </form>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@endsection
