@@ -24,6 +24,7 @@
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -41,6 +42,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('audit-logs.index') }}">Audit Logs</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('jobs.monitor') }}">
+                                    <i class="bi bi-hdd-stack"></i> Job Monitor
+                                </a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="notifMenu" role="button" 
                                    data-bs-toggle="dropdown" aria-expanded="false">
@@ -55,6 +61,11 @@
                                     <li>
                                         <a class="dropdown-item" href="{{ route('notifications.create-custom') }}">
                                             Ke Email Custom
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('notifications.history') }}">
+                                            Histori Notifikasi
                                         </a>
                                     </li>
                                 </ul>

@@ -739,3 +739,8 @@ networks:
    ping $DB_HOST
    telnet $DB_HOST 3306
    ```
+
+
+
+
+(Tutorial)[https://dev.to/enrico_dev86/laravel-notification-system-with-queue-28p4]
