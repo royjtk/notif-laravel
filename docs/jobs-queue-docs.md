@@ -593,33 +593,25 @@ $user->notify(new DocumentUploaded($document));
 ## Setup dengan Docker
 
 ### 1. Multi-Container Setup
-Kita perlu minimal 2 container:
+Kita perlu 2 container saja:
 1. Container untuk aplikasi web
 2. Container khusus untuk queue worker
 
-### 2. Dockerfile
-```dockerfile
-# Base image yang sama untuk web dan queue
-FROM php:8.1-fpm
+### 2. Konfigurasi untuk External Database
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    && docker-php-ext-install pdo pdo_mysql
-
-# Copy aplikasi
-COPY . /var/www/html/
-WORKDIR /var/www/html
-
-# Install composer dependencies
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage
+#### A. Environment Variables
+```env
+DB_CONNECTION=mysql
+DB_HOST=host.docker.internal     # Untuk development di Windows
+# DB_HOST=172.17.0.1            # Untuk Linux VPS (IP docker bridge)
+# DB_HOST=10.10.10.10          # Atau IP VPS Anda
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
 ```
 
-### 3. Docker Compose
+#### B. Docker Compose untuk External DB
 ```yaml
 version: '3'
 services:
@@ -630,8 +622,12 @@ services:
       - .:/var/www/html
     networks:
       - app-network
-    depends_on:
-      - db
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
 
   # Queue Worker
   queue:
@@ -641,186 +637,105 @@ services:
       - .:/var/www/html
     networks:
       - app-network
-    depends_on:
-      - db
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
     deploy:
-      replicas: 2  # Jumlah worker processes
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 5s
         max_attempts: 3
 
-  # Database
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - dbdata:/var/lib/mysql
-    networks:
-      - app-network
-
 networks:
   app-network:
     driver: bridge
 
-volumes:
-  dbdata:
+# Tidak perlu volumes karena database di luar Docker
 ```
 
-### 4. Menjalankan Services
-```bash
-# Build dan jalankan containers
-docker-compose up -d
+### 3. Keuntungan Database di VPS
 
-# Check status containers
-docker-compose ps
+1. **Data Persistence**
+   - Data tersimpan permanen di VPS
+   - Tidak hilang saat container di-rebuild
+   - Backup lebih straightforward
 
-# Lihat logs queue worker
-docker-compose logs -f queue
+2. **Performance**
+   - Tidak ada overhead container untuk database
+   - Resource VPS bisa dioptimalkan
+   - Network latency lebih rendah
 
-# Scale jumlah queue workers
-docker-compose up -d --scale queue=3
-```
+3. **Maintenance**
+   - Update database bisa dilakukan terpisah
+   - Tidak perlu khawatir dengan Docker volume
+   - Backup/restore lebih mudah
 
-### 5. Monitoring di Docker
+### 4. Hal yang Perlu Diperhatikan
 
-#### A. Check Queue Worker Logs
-```bash
-# Lihat logs realtime
-docker-compose logs -f queue
+1. **Network Access**
+   - Pastikan firewall mengizinkan akses dari container ke database
+   - Set MySQL bind-address dengan benar
+   - Gunakan credentials yang aman
 
-# Lihat logs terakhir
-docker-compose logs --tail=100 queue
-```
-
-#### B. Masuk ke Container
-```bash
-# Masuk ke container queue
-docker-compose exec queue bash
-
-# Cek status queue
-php artisan queue:status
-
-# List failed jobs
-php artisan queue:failed
-```
-
-#### C. Health Checks
-1. Tambahkan di docker-compose.yml:
-```yaml
-services:
-  queue:
-    # ...existing config...
-    healthcheck:
-      test: ["CMD", "php", "artisan", "queue:status"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-```
-
-### 6. Best Practices untuk Docker
-
-#### A. Container Management
-1. **Restart Policy**
-   ```yaml
-   services:
-     queue:
-       restart: unless-stopped
-   ```
-
-2. **Resource Limits**
-   ```yaml
-   services:
-     queue:
-       deploy:
-         resources:
-           limits:
-             cpus: '0.50'
-             memory: 512M
-   ```
-
-#### B. Logging
-1. **Log Driver Config**
-   ```yaml
-   services:
-     queue:
-       logging:
-         driver: "json-file"
-         options:
-           max-size: "10m"
-           max-file: "3"
-   ```
-
-#### C. Scaling
-1. **Manual Scaling**
-   ```bash
-   docker-compose up -d --scale queue=3
-   ```
-
-2. **Auto-scaling dengan Docker Swarm**
-   ```yaml
-   deploy:
-     mode: replicated
-     replicas: 2
-     update_config:
-       parallelism: 1
-       delay: 10s
-     restart_policy:
-       condition: on-failure
-   ```
-
-### 7. Deployment Steps
-
-1. **Initial Deploy**
-   ```bash
-   # Clone repo dan masuk ke directory
-   git clone <repository> && cd <directory>
-
-   # Copy dan setup environment
-   cp .env.example .env
+2. **Development vs Production**
+   ```env
+   # Development (Windows)
+   DB_HOST=host.docker.internal
    
-   # Build dan start services
+   # Production (Linux VPS)
+   DB_HOST=172.17.0.1  # Docker bridge IP
+   # atau
+   DB_HOST=10.10.10.10 # IP VPS Anda
+   ```
+
+3. **Security**
+   - Batasi akses database hanya dari IP yang diperlukan
+   - Gunakan strong password
+   - Regular security updates untuk MySQL/MariaDB
+
+### 5. Deployment Steps
+
+1. **Database Setup di VPS**
+   ```bash
+   # Create database dan user
+   mysql -u root -p
+   CREATE DATABASE your_database;
+   CREATE USER 'your_user'@'%' IDENTIFIED BY 'your_password';
+   GRANT ALL PRIVILEGES ON your_database.* TO 'your_user'@'%';
+   FLUSH PRIVILEGES;
+   
+   # Configure MySQL untuk accept connections
+   # Edit /etc/mysql/mysql.conf.d/mysqld.cnf
+   # Change bind-address = 127.0.0.1
+   # to bind-address = 0.0.0.0
+   ```
+
+2. **Deploy Containers**
+   ```bash
+   # Build dan start containers
    docker-compose up -d --build
    
-   # Run migrations
-   docker-compose exec app php artisan migrate
+   # Verify connections
+   docker-compose exec app php artisan migrate:status
    ```
 
-2. **Updates/Maintenance**
+### 6. Troubleshooting
+
+1. **Connection Issues**
    ```bash
-   # Pull updates
-   git pull
-
-   # Rebuild containers
-   docker-compose up -d --build
-
-   # Restart queue workers
-   docker-compose restart queue
+   # Test database connection dari container
+   docker-compose exec app php artisan tinker
+   >>> DB::connection()->getPdo();
    ```
 
-3. **Rollback**
+2. **Network Issues**
    ```bash
-   # Rollback ke versi sebelumnya
-   git checkout <previous-version>
-   docker-compose up -d --build
+   # Test network dari container
+   docker-compose exec app bash
+   ping $DB_HOST
+   telnet $DB_HOST 3306
    ```
-
-### 8. Troubleshooting di Docker
-
-#### A. Common Issues
-1. **Queue Worker Mati**
-   - Check logs: `docker-compose logs queue`
-   - Check memory usage: `docker stats`
-   - Restart container: `docker-compose restart queue`
-
-2. **Memory Issues**
-   - Increase container limits
-   - Check memory leaks
-   - Monitor dengan `docker stats`
-
-3. **Koneksi Database**
-   - Verify network connectivity
-   - Check environment variables
-   - Ensure database is ready
