@@ -25,9 +25,13 @@ class DocumentController extends Controller
         return view('documents.create');
     }
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function store(Request $request)
     {
-        Auth::loginUsingId(1);
         $request->validate([
             'document' => 'required|file|max:20000', // max 20MB
         ]);
@@ -63,7 +67,6 @@ class DocumentController extends Controller
 
     public function preview($id)
     {
-        Auth::loginUsingId(1);
         $document = Document::findOrFail($id);
         $fileUrl = asset('storage/' . $document->filename);
 
@@ -76,10 +79,10 @@ class DocumentController extends Controller
         ]);
 
         // Notifikasi
-        $user = Auth::user();
-        if ($user) {
-            $user->notify(new DocumentUploaded($document));
-        }
+        // $user = Auth::user();
+        // if ($user) {
+        //     $user->notify(new DocumentUploaded($document));
+        // }
 
         return view('documents.preview', compact('document', 'fileUrl'));
     }

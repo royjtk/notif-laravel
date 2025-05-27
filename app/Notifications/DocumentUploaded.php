@@ -20,7 +20,13 @@ class DocumentUploaded extends Notification
 
     public function via($notifiable)
     {
-        return ['mail', 'database']; // Kirim via email, bisa ditambah database, broadcast, dll
+        $channels = ['database'];  // Always send to database for in-app notifications
+        
+        if ($notifiable->notify_on_document_upload) {
+            $channels[] = 'mail';
+        }
+        
+        return $channels;
     }
 
     public function toMail($notifiable)
